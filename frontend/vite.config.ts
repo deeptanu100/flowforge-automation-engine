@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
+  base: '/flowforge-automation-engine/',
   server: {
     proxy: {
       '/api': 'http://localhost:8000'
