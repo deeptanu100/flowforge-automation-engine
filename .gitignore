@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+*.db
+flowforge.db
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+*.local
+.npm
+.eslintcache
+
+# Vite
+.vite/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
