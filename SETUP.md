@@ -1,6 +1,7 @@
-# Setup & Installation Guide
-
 This guide will help you get FlowForge up and running on your local machine.
+
+> [!IMPORTANT]
+> **Backend Requirement**: The FlowForge frontend interface is a visual engine that requires the **Python Backend** to be running locally to execute workflows. The live static preview (on GitHub Pages) cannot perform real-time automation. 
 
 ## Prerequisites
 

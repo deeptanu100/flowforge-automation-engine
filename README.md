@@ -1,6 +1,10 @@
-# FlowForge: Local Workflow Automation Engine
-
 FlowForge is a high-performance, local-first automation platform that bridges visual node-based design with native execution and AI acceleration.
+
+## 🌐 Live Preview
+**Experience the interface here**: [https://deeptanu100.github.io/flowforge-automation-engine/](https://deeptanu100.github.io/flowforge-automation-engine/)
+
+> [!WARNING]
+> **Important Note**: The live preview is a **static frontend**. While you can explore the UI and the visual canvas, the **local execution engine** (backend) is required for workflows to actually run. To perform real-time automation, follow the [Setup Instructions](#-quick-start) to run the backend locally.
 
 ## 🔥 Key Features
 
@@ -43,9 +47,7 @@ FlowForge is a high-performance, local-first automation platform that bridges vi
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)**: Technical design and data flow.
 - **[SETUP.md](./SETUP.md)**: Detailed installation and configuration guide.
 
-## 📄 License
-
-This project is licensed under the **MIT License**. See the [LICENSE](./LICENSE) file for details.
+This project is governed by the **FlowForge Proprietary License**. See the [LICENSE](./LICENSE) file for more details.
 
 ---
 
