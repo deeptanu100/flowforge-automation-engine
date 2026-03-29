@@ -1,33 +1,258 @@
-# FLOWFORGE PROPRIETARY LICENSE
-
+FLOWFORGE — CUSTOM LICENSE
 Version 1.0, March 2026
 
-## 1. OWNERSHIP AND GRANT OF LICENSE
-FlowForge (the "Software") is the sole and exclusive property of the Publisher ("Owner"). This Software is licensed, not sold. Subject to the terms of this License, the Owner grants you a non-exclusive, non-transferable, non-sublicensable, limited license to use the Software solely for your internal purposes.
+Copyright (c) 2026 deeptanu100 ("the Author")
+All Rights Reserved unless expressly granted below.
 
-## 2. RESTRICTIONS
-You shall not, and shall not permit any third party to:
-(a) Copy, modify, or create derivative works of the Software.
-(b) Reverse engineer, decompile, or disassemble the Software.
-(c) Rent, lease, lend, sell, sublicense, or otherwise distribute the Software.
-(d) Remove or obscure any proprietary notices or labels on the Software.
+================================================================================
+NOTICE: This license is a binding legal instrument. Any modification,
+alteration, removal, or tampering with the terms of this license — in whole
+or in part — by any party other than the Author is strictly PROHIBITED and
+shall render any rights granted herein immediately VOID. Unauthorized
+modification of this license constitutes a violation of the Author's
+intellectual property rights and may result in legal proceedings.
+================================================================================
 
-## 3. INTELLECTUAL PROPERTY
-All rights, title, and interest in and to the Software, including all intellectual property rights therein, are and will remain with the Owner.
 
-## 4. TERMINATION
-This License is effective until terminated. Your rights under this License will terminate automatically without notice from the Owner if you fail to comply with any term(s) of this License. Upon termination, you shall cease all use of the Software and destroy all copies.
+1. DEFINITIONS
 
-## 5. DISCLAIMER OF WARRANTIES
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH YOU.
+   "Software" means the FlowForge source code, execution engine, visual canvas,
+   documentation, examples, and all associated files contained in this
+   repository.
 
-## 6. LIMITATION OF LIABILITY
-IN NO EVENT SHALL THE OWNER OR PUBLISHER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+   "Author" means the original creator and copyright holder: deeptanu100.
 
-## 7. GOVERNING LAW AND JURISDICTION
-This License shall be governed by and construed in accordance with the laws of India. 
+   "Derivative Work" means any software, product, application, or service
+   that is built using the Software as a foundation, component, or reference.
 
-**ANY AND ALL DISPUTES, CONTROVERSIES, OR CLAIMS ARISING OUT OF OR RELATING TO THIS LICENSE, OR THE BREACH, TERMINATION, OR INVALIDITY THEREOF, SHALL BE SUBJECT TO THE EXCLUSIVE JURISDICTION OF THE SUPREME COURT OF INDIA AND ALL COURTS SUBORDINATE TO IT.**
+   "Direct Sale" means distributing, licensing, sublicensing, or offering for
+   sale the Software itself — whether in original, modified, or repackaged
+   form — as a standalone product or primary deliverable.
 
-## 8. ENTIRE AGREEMENT
-This License constitutes the entire agreement between you and the Owner regarding the Software and supersedes all prior or contemporaneous understandings regarding such subject matter.
+
+2. GRANT OF RIGHTS
+
+   Subject to the terms and conditions of this License, the Author hereby
+   grants you a non-exclusive, non-transferable, revocable, worldwide
+   license to:
+
+   (a) USE the Software for personal, educational, and commercial purposes;
+
+   (b) COPY and MODIFY the Software to create Derivative Works;
+
+   (c) PUBLISH and DISTRIBUTE Derivative Works that incorporate the Software,
+       provided that such Derivative Works add substantial original value
+       beyond the Software itself;
+
+   (d) MERGE the Software into larger projects and systems.
+
+
+3. RESTRICTIONS
+
+   You may NOT, under any circumstances:
+
+   (a) DIRECTLY SELL the Software — You shall not sell, sublicense, rent,
+       lease, or otherwise commercially distribute the Software itself,
+       whether in its original form, a modified form, or a repackaged form,
+       as a standalone product. The Software may only be distributed as part
+       of a Derivative Work that adds substantial original functionality,
+       content, or services beyond what the Software provides on its own.
+
+   (b) REMOVE OR ALTER ATTRIBUTION — You shall not remove, obscure, or
+       modify any copyright notices, license text, author credits, or
+       attribution statements contained in or associated with the Software.
+
+   (c) MODIFY THIS LICENSE — You shall not alter, amend, rewrite, extend,
+       or replace this License document, in whole or in part. Any fork,
+       copy, or distribution of the Software must include this License in
+       its exact, unmodified form. Any unauthorized modification of this
+       License shall immediately and automatically terminate all rights
+       granted herein.
+
+   (d) CLAIM AUTHORSHIP — You shall not represent yourself or any third
+       party as the original author or creator of the Software.
+
+
+4. MANDATORY ATTRIBUTION AND CREDIT REQUIREMENTS
+
+   Any Derivative Work, product, application, or service that uses,
+   incorporates, or is built upon the Software MUST include ALL of the
+   following:
+
+   (a) VISIBLE CREDIT — A clearly visible credit statement in the
+       Derivative Work's documentation, "About" section, splash screen,
+       or equivalent user-facing location, reading:
+
+           "Built using FlowForge
+            by deeptanu100 (https://github.com/deeptanu100/flowforge-automation-engine)"
+
+   (b) LICENSE INCLUSION — A complete, unmodified copy of this License
+       file must be included in any distribution of the Derivative Work.
+
+   (c) SOURCE REFERENCE — A direct hyperlink to the original repository
+       (https://github.com/deeptanu100/flowforge-automation-engine) must be provided
+       in any publicly available documentation or website associated with
+       the Derivative Work.
+
+   (d) WRITTEN AUTHORIZATION FOR COMMERCIAL USE — Any commercial Derivative
+       Work (i.e., a product or service offered for monetary compensation)
+       that incorporates the Software must obtain prior written authorization
+       from the Author. Such authorization must bear the proper signatures
+       of the following parties:
+
+           (i)   The Author (deeptanu100) — as the original copyright holder;
+           (ii)  The Head Engineer — the principal technical lead of the
+                 Derivative Work;
+           (iii) The Founder — the principal executive or founder of the
+                 organization producing the Derivative Work.
+
+       This written authorization must be maintained on file for the
+       duration of the Derivative Work's commercial availability and shall
+       be produced upon request by the Author or the Author's legal
+       representative.
+
+
+5. INTELLECTUAL PROPERTY
+
+   This License does not transfer any ownership, title, or intellectual
+   property rights in the Software to you. The Author retains all rights,
+   title, and interest in the Software, including but not limited to all
+   copyrights, patent rights, trade secrets, and trademarks associated
+   with the Software.
+
+
+6. DISCLAIMER OF WARRANTIES
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+   THE AUTHOR SHALL NOT BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING
+   FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+   DEALINGS IN THE SOFTWARE.
+
+
+7. LIMITATION OF LIABILITY
+
+   IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY INDIRECT, INCIDENTAL,
+   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING BUT NOT LIMITED
+   TO PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+   PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+   LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+8. TERMINATION
+
+   (a) This License and all rights granted hereunder shall automatically
+       terminate if you fail to comply with any of the terms and conditions
+       set forth herein.
+
+   (b) Upon termination, you must immediately cease all use, distribution,
+       and exploitation of the Software and destroy all copies in your
+       possession or control.
+
+   (c) Sections 4 (Attribution), 5 (Intellectual Property), 6 (Disclaimer),
+       7 (Limitation of Liability), and 9 (Governing Law) shall survive
+       any termination of this License.
+
+
+9. GOVERNING LAW AND JURISDICTION
+
+   (a) This License shall be governed by and construed in accordance with
+       the laws of the Republic of India, including but not limited to the
+       Indian Copyright Act, 1957 (as amended), the Information Technology
+       Act, 2000 (as amended), and all other applicable statutes, rules,
+       and regulations, without regard to conflict of law provisions.
+
+   (b) Any dispute, controversy, or claim arising out of or relating to this
+       License, or the breach, termination, or validity thereof, shall be
+       subject to the EXCLUSIVE JURISDICTION of the courts of India,
+       encompassing the full hierarchy of the Indian judicial system:
+
+           (i)    The Hon'ble SUPREME COURT OF INDIA at New Delhi, being
+                  the apex court and court of final appeal under Article 32,
+                  Article 136, and Article 141 of the Constitution of India;
+
+           (ii)   All HIGH COURTS of India established under Article 214 of
+                  the Constitution, including but not limited to the Hon'ble
+                  High Court of Delhi at New Delhi, having original,
+                  appellate, and writ jurisdiction under Articles 226 and
+                  227 of the Constitution;
+
+           (iii)  All DISTRICT COURTS, CIVIL COURTS, and SESSIONS COURTS
+                  established under the Code of Civil Procedure, 1908, and
+                  the Code of Criminal Procedure, 1973, within the territory
+                  of India;
+
+           (iv)   All SUBORDINATE COURTS, TRIBUNALS, and SPECIALIZED FORUMS
+                  constituted under any Act of Parliament or State
+                  Legislature, including the National Company Law Tribunal
+                  (NCLT), Intellectual Property Appellate Board (IPAB) or
+                  its successor, and any other tribunal or forum having
+                  jurisdiction over intellectual property, copyright, or
+                  information technology disputes.
+
+   (c) The Author reserves the right to initiate legal proceedings in any
+       court of competent jurisdiction within the territory of India, at
+       any level of the judicial hierarchy as described above, at the
+       Author's sole discretion.
+
+   (d) You irrevocably submit to the jurisdiction of the courts of India
+       as described herein and waive any objection to the laying of venue
+       in such courts, including any objection based on forum non conveniens,
+       lack of territorial jurisdiction, or inconvenience of forum.
+
+   (e) In any legal proceeding or action brought by the Author to enforce
+       the terms of this License or protect the Author's intellectual
+       property rights, the Author shall be entitled to recover their
+       reasonable attorney's fees, court costs, and other expenses of
+       litigation from the opposing party or parties. Under no circumstances
+       shall the Author be held liable for the attorney's fees, court costs,
+       or litigation expenses of any other party.
+
+   (f) Nothing in this Section shall limit the Author's right to seek
+       interim, interlocutory, or emergency injunctive relief from any
+       court of competent jurisdiction, including ex parte orders, to
+       prevent ongoing or imminent infringement of the Author's rights
+       under this License.
+
+
+10. SEVERABILITY
+
+   If any provision of this License is held to be invalid, illegal, or
+   unenforceable by a court of competent jurisdiction, such invalidity,
+   illegality, or unenforceability shall not affect any other provision
+   of this License, and the remaining provisions shall continue in full
+   force and effect.
+
+
+11. ENTIRE AGREEMENT
+
+   This License constitutes the entire agreement between you and the Author
+   with respect to the Software and supersedes all prior or contemporaneous
+   understandings, agreements, representations, and warranties, both written
+   and oral, regarding the Software.
+
+
+12. LICENSE INTEGRITY CLAUSE
+
+   THIS LICENSE DOCUMENT IS IMMUTABLE. No person, entity, organization, or
+   party — other than the Author — has the right, authority, or permission
+   to modify, amend, annotate, extend, reduce, reinterpret, or otherwise
+   alter the text of this License in any manner. Any version of this License
+   that differs from the original as published by the Author at
+   https://github.com/deeptanu100/flowforge-automation-engine shall be considered
+   FRAUDULENT and VOID. Distribution of the Software with a modified
+   version of this License constitutes copyright infringement and shall
+   be subject to legal action under applicable law.
+
+   The SHA-256 hash of this License may be published separately by the
+   Author as an additional mechanism to verify the integrity and
+   authenticity of this document.
+
+
+================================================================================
+END OF LICENSE
+================================================================================

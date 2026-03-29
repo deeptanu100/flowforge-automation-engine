@@ -120,7 +120,9 @@ flowforge/
 
 ## 📄 License
 
-This project is governed by the **FlowForge Proprietary License**. All rights reserved by the original publisher and owner. See the [LICENSE](./LICENSE) file for all legalities, terms, and dispute resolution information.
+This project is governed by the **FlowForge Custom License**. It is a restrictive license that requires mandatory attribution, prohibits direct sale of the software, and requires written authorization for commercial use. 
+
+See the full [LICENSE](./LICENSE) file for the complete legal text, attribution requirements, and jurisdictional details (Supreme Court of India).
 
 ---
 
