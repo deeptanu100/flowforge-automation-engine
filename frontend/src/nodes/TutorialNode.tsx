@@ -1,8 +1,9 @@
 import { type NodeProps, type Node } from '@xyflow/react';
 import { NotebookPen } from 'lucide-react';
 import type { TutorialNodeData } from '../types/workflow';
+import NodeDeleteButton from './NodeDeleteButton';
 
-export type TutorialNodeType = Node<TutorialNodeData & { onChange: (field: string, value: string) => void }, 'tutorialNode'>;
+export type TutorialNodeType = Node<TutorialNodeData & { onChange: (field: string, value: string) => void; onDelete: () => void }, 'tutorialNode'>;
 
 export default function TutorialNode({ data }: NodeProps<TutorialNodeType>) {
   return (
@@ -15,6 +16,7 @@ export default function TutorialNode({ data }: NodeProps<TutorialNodeType>) {
           onChange={(e) => data.onChange('title', e.target.value)}
           placeholder="New Note"
         />
+        <NodeDeleteButton onDelete={data.onDelete} nodeLabel={data.title || 'Note'} />
       </div>
       <div className="p-3 pt-1">
         <textarea

@@ -476,3 +476,158 @@ input.flow-node-input, select.flow-node-select {
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+
+/* ===== Node Delete Button & Confirmation ===== */
+.node-delete-btn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.2);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0;
+}
+.flow-node:hover .node-delete-btn,
+.flow-node .node-delete-btn:focus { opacity: 1; }
+.node-delete-btn:hover {
+  color: var(--color-error);
+  background: var(--color-error-bg);
+  transform: scale(1.15);
+}
+
+.node-delete-confirm {
+  position: absolute;
+  top: 44px;
+  right: 8px;
+  z-index: 200;
+  width: 260px;
+  background: rgba(15, 15, 22, 0.95);
+  border: 1px solid rgba(255, 51, 102, 0.25);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.7), 0 0 30px rgba(255, 51, 102, 0.1), inset 0 1px 1px rgba(255,255,255,0.08);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  animation: delete-panel-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes delete-panel-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.node-delete-confirm-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-warning);
+}
+
+.node-delete-confirm-text {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+.node-delete-confirm-text strong {
+  color: var(--color-text-primary);
+}
+
+.node-delete-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  transition: all 0.3s;
+}
+.node-delete-checkbox:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.12);
+}
+
+.node-delete-checkbox-box {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 2px solid rgba(255,255,255,0.2);
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  color: transparent;
+}
+.node-delete-checkbox-box--checked {
+  background: var(--color-error);
+  border-color: var(--color-error);
+  color: white;
+  box-shadow: 0 0 12px var(--color-error-bg);
+}
+
+.node-delete-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.node-delete-cancel {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.node-delete-cancel:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--color-text-primary);
+}
+
+.node-delete-confirm-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 51, 102, 0.15);
+  color: rgba(255, 51, 102, 0.4);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: not-allowed;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.node-delete-confirm-btn--active {
+  background: var(--color-error);
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(255, 51, 102, 0.4);
+}
+.node-delete-confirm-btn--active:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(255, 51, 102, 0.5);
+}
+

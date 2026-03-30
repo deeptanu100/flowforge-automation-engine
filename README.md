@@ -1,5 +1,6 @@
 # FlowForge: Local-First Workflow Automation Engine ⚙️
 
+[![Version](https://img.shields.io/badge/Version-1.1.0-brightgreen.svg)](./CHANGELOG.md)
 [![License](https://img.shields.io/badge/License-Proprietary-red.svg)](./LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20|%20macOS-blue.svg)](https://github.com/deeptanu100/flowforge-automation-engine)
 [![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-61dafb.svg)](https://react.dev/)
@@ -59,9 +60,9 @@ FlowForge uses a **Decoupled Mono-repo** architecture:
 
 | Node Type | Description | Capabilities |
 | :--- | :--- | :--- |
-| **API Request** | Standard HTTP client | `GET`, `POST`, `PUT`, `DELETE` with JSON body support. |
-| **Local Compute** | Native Python executor | Runs AI models or script blocks with hardware acceleration. |
-| **Tutorial Node** | Embedded documentation | Full Markdown support for in-canvas guides and notes. |
+| **API Request** | Standard HTTP client | `GET`, `POST`, `PUT`, `DELETE` with JSON body support. Deletable with confirmation. |
+| **Local Compute** | Native Python executor | Runs AI models or script blocks with hardware acceleration. Deletable with confirmation. |
+| **Tutorial Node** | Embedded documentation | Full Markdown support for in-canvas guides and notes. Deletable with confirmation. |
 
 ---
 
@@ -123,6 +124,15 @@ flowforge/
 This project is governed by the **FlowForge Custom License**. It is a restrictive license that requires mandatory attribution, prohibits direct sale of the software, and requires written authorization for commercial use. 
 
 See the full [LICENSE](./LICENSE) file for the complete legal text, attribution requirements, and jurisdictional details (Supreme Court of India).
+
+---
+
+## 📋 Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md) for a full version history.
+
+### 🆕 What's New in v1.1.0
+- **Node Deletion**: Delete individual nodes from the canvas with a two-step confirmation dialog (checkbox + confirm button). All connected edges are automatically cleaned up.
 
 ---
 

@@ -46,6 +46,14 @@ export function useWorkflow() {
     [setEdges]
   );
 
+  const deleteNode = useCallback(
+    (nodeId: string) => {
+      setNodes((nds) => nds.filter((n) => n.id !== nodeId));
+      setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId));
+    },
+    [setNodes, setEdges]
+  );
+
   const addNode = useCallback(
     (type: 'apiRequest' | 'localCompute' | 'tutorialNode') => {
       const id = `${type}-${Date.now()}`;
@@ -59,6 +67,7 @@ export function useWorkflow() {
       // Add onChange handler to each node's data
       const nodeData = {
         ...data,
+        onDelete: () => deleteNode(id),
         onChange: (field: string, value: string) => {
           setNodes((nds) =>
             nds.map((n) => {
@@ -84,7 +93,7 @@ export function useWorkflow() {
         return [...nds, newNode];
       });
     },
-    [setNodes]
+    [setNodes, deleteNode]
   );
 
   const saveWorkflow = useCallback(async () => {

@@ -49,3 +49,13 @@ FlowForge is a high-performance local automation engine designed for developers 
   - Built-in `TutorialNode` with full markdown support.
   - Persistent documentation within the workflow file.
   - Integrated "Quick Start" nodes for new users.
+
+## Node Management *(v1.1)*
+
+- **Node Deletion with Two-Step Confirmation**:
+  - Delete any node from the canvas via a trash icon button in the node header.
+  - Two-step safety confirmation: tick a mandatory checkbox before the delete action is enabled.
+  - Automatically removes all connected edges when a node is deleted.
+  - Confirmation panel auto-dismisses after 8 seconds of inactivity.
+  - Non-intrusive design — delete button only appears on node hover.
+

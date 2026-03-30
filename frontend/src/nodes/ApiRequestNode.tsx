@@ -3,8 +3,9 @@ import { Handle, Position, type NodeProps, type Node } from '@xyflow/react';
 import { Globe, Play, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import type { ApiRequestNodeData, Credential } from '../types/workflow';
 import { getCredentials } from '../api/client';
+import NodeDeleteButton from './NodeDeleteButton';
 
-export type ApiRequestNodeType = Node<ApiRequestNodeData & { onChange: (field: string, value: string) => void }, 'apiRequest'>;
+export type ApiRequestNodeType = Node<ApiRequestNodeData & { onChange: (field: string, value: string) => void; onDelete: () => void }, 'apiRequest'>;
 
 export default function ApiRequestNode({ data, isConnectable }: NodeProps<ApiRequestNodeType>) {
   const [credentials, setCredentials] = useState<Credential[]>([]);
@@ -30,6 +31,7 @@ export default function ApiRequestNode({ data, isConnectable }: NodeProps<ApiReq
         <Globe className="node-icon w-4 h-4" />
         <span className="flex-1 truncate">{data.label || 'API Request'}</span>
         {getStatusIcon()}
+        <NodeDeleteButton onDelete={data.onDelete} nodeLabel={data.label || 'API Request'} />
       </div>
 
       <div className="flow-node-body">

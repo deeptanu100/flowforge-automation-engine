@@ -3,8 +3,9 @@ import { Handle, Position, type NodeProps, type Node } from '@xyflow/react';
 import { Monitor, Cpu, Server, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import type { LocalComputeNodeData, DeviceAvailability } from '../types/workflow';
 import { getDevices } from '../api/client';
+import NodeDeleteButton from './NodeDeleteButton';
 
-export type LocalComputeNodeType = Node<LocalComputeNodeData & { onChange: (field: string, value: string) => void }, 'localCompute'>;
+export type LocalComputeNodeType = Node<LocalComputeNodeData & { onChange: (field: string, value: string) => void; onDelete: () => void }, 'localCompute'>;
 
 export default function LocalComputeNode({ data, isConnectable }: NodeProps<LocalComputeNodeType>) {
   const [devices, setDevices] = useState<DeviceAvailability | null>(null);
@@ -30,6 +31,7 @@ export default function LocalComputeNode({ data, isConnectable }: NodeProps<Loca
         <Monitor className="node-icon w-4 h-4" />
         <span className="flex-1 truncate">{data.label || 'Local Compute'}</span>
         {getStatusIcon()}
+        <NodeDeleteButton onDelete={data.onDelete} nodeLabel={data.label || 'Local Compute'} />
       </div>
 
       <div className="flow-node-body">
