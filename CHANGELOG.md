@@ -4,6 +4,24 @@ All notable changes to FlowForge Automation Engine will be documented in this fi
 
 ---
 
+## [v1.2.0] — 2026-03-30
+
+### ✨ New Features
+
+- **Liquid Glass Interactive Dot Grid Background**
+  - Completely redesigned the canvas background to an ultra-premium "Liquid Glass" dynamic dot grid.
+  - Features an evenly distributed base grid faintly visible at a low 15% opacity globally.
+  - Introduces a blazing-fast, GPU-accelerated 350px interactive cursor spotlight that smoothly brightens the nearest cyan dots to 100% opacity as the mouse moves across the canvas.
+  - Fully synchronized with React Flow pan & zoom mechanics ensuring perfect dot-alignment.
+
+### 🐛 Bug Fixes & Refinements
+
+- **Exclusive Button Zoom Control**: Explicitly disabled mouse scroll wheel zooming, pinch-to-zoom, and double-click zooming. Sizing of the canvas workflow is now strictly controlled by the dedicated zoom (+/-) buttons in the corner, preventing accidental screen re-scaling during panning.
+- **Node Connection Overhaul**: Fixed a critical `overflow: hidden` CSS clipping bug on `flow-node` containers that was decapitating the React Flow connection handles, causing failed wire dragging. Handles are now fully exposed, hit-boxing perfectly.
+- **Performance Tiers**: Decoupled the cursor glow engine from React `useState` cycles to utilize pure DOM references and `requestAnimationFrame`. This entirely eliminated UI stutter, dropping high-Hz mouse polling lag to zero.
+
+---
+
 ## [v1.1.0] — 2026-03-30
 
 ### ✨ New Features

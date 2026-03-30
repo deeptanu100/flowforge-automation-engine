@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import {
   ReactFlow,
   Background,
@@ -7,6 +7,7 @@ import {
   Panel,
   useReactFlow,
   ReactFlowProvider,
+  useStore
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -15,6 +16,53 @@ import { nodeTypes } from '../nodes/nodeTypes';
 import Toolbar from './Toolbar';
 import SidePanel from './SidePanel';
 import { CheckCircle, XCircle, Loader2, ChartBar } from 'lucide-react';
+
+// Custom, robust interactive dot grid that pans perfectly with React Flow
+function CursorGlowBackground() {
+  const transform = useStore((s) => s.transform);
+  const glowRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    let animationFrameId: number;
+    
+    const handlePointerMove = (e: PointerEvent) => {
+      // Throttle via rAF for ultimate buttery-smooth performance
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      
+      animationFrameId = requestAnimationFrame(() => {
+        const rfElement = document.querySelector('.react-flow');
+        if (rfElement && glowRef.current) {
+          const bounds = rfElement.getBoundingClientRect();
+          const x = e.clientX - bounds.left;
+          const y = e.clientY - bounds.top;
+          glowRef.current.style.setProperty('--mouse-x', `${x}px`);
+          glowRef.current.style.setProperty('--mouse-y', `${y}px`);
+        }
+      });
+    };
+    
+    window.addEventListener('pointermove', handlePointerMove, { passive: true });
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  return (
+    <div 
+      ref={glowRef}
+      className="absolute inset-0 z-0 pointer-events-none"
+      style={{
+        backgroundImage: 'radial-gradient(circle 1.5px at 1.5px 1.5px, rgba(0, 229, 255, 1) 100%, transparent)',
+        backgroundSize: `${24 * transform[2]}px ${24 * transform[2]}px`,
+        backgroundPosition: `${transform[0]}px ${transform[1]}px`,
+        // Start black (100% opaque) and fade to 15% baseline opacity (rgba 0,0,0,0.15) instead of transparent
+        maskImage: `radial-gradient(circle 350px at var(--mouse-x, -1000px) var(--mouse-y, -1000px), black 0%, rgba(0,0,0,0.15) 100%)`,
+        WebkitMaskImage: `radial-gradient(circle 350px at var(--mouse-x, -1000px) var(--mouse-y, -1000px), black 0%, rgba(0,0,0,0.15) 100%)`
+      }}
+    />
+  );
+}
 
 function FlowBuilder() {
   const {
@@ -39,7 +87,6 @@ function FlowBuilder() {
 
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const { screenToFlowPosition } = useReactFlow();
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -71,8 +118,13 @@ function FlowBuilder() {
         minZoom={0.2}
         maxZoom={2}
         defaultEdgeOptions={{ animated: true, style: { strokeWidth: 2 } }}
+        zoomOnScroll={false}
+        zoomOnPinch={false}
+        zoomOnDoubleClick={false}
       >
-        <Background color="rgba(255,255,255,0.05)" gap={24} size={2} />
+        {/* Unified Interactive dot overlay - Handles both base grid and glow */}
+        <CursorGlowBackground />
+        
         <Controls position="bottom-left" className="!m-6" />
         <MiniMap 
           position="bottom-right" 

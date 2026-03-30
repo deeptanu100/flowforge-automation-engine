@@ -81,6 +81,12 @@ body::after {
 ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-border-hover); }
 
+/* ===== Cursor Glow Overlay ===== */
+.dot-glow-overlay {
+  mask-image: radial-gradient(circle 300px at var(--mouse-x, -1000px) var(--mouse-y, -1000px), black 0%, transparent 100%);
+  -webkit-mask-image: radial-gradient(circle 300px at var(--mouse-x, -1000px) var(--mouse-y, -1000px), black 0%, transparent 100%);
+}
+
 /* ===== React Flow Overrides ===== */
 .react-flow__background { background: transparent !important; z-index: 1; }
 .react-flow__minimap { 
@@ -128,7 +134,6 @@ body::after {
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  overflow: hidden;
 }
 .flow-node::before {
   content: "";
@@ -161,6 +166,7 @@ body::after {
   letter-spacing: 0.02em;
   background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%);
   border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-radius: 19px 19px 0 0;
 }
 .flow-node-body {
   padding: 14px 18px 18px;
