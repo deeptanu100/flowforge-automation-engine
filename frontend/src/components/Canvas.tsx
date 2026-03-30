@@ -112,11 +112,10 @@ function FlowBuilder() {
         onDrop={onDrop}
         onDragOver={onDragOver}
         nodeTypes={nodeTypes}
-        fitView
-        fitViewOptions={{ maxZoom: 1, padding: 3 }}
         className="bg-canvas-bg"
         minZoom={0.2}
         maxZoom={2}
+        defaultViewport={{ x: 0, y: 0, zoom: 1 }}
         defaultEdgeOptions={{ animated: true, style: { strokeWidth: 2 } }}
         zoomOnScroll={false}
         zoomOnPinch={false}

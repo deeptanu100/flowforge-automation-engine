@@ -4,6 +4,21 @@ All notable changes to FlowForge Automation Engine will be documented in this fi
 
 ---
 
+## [v1.2.1] — 2026-03-30
+
+### ✨ UI/UX Enhancements
+
+- **Massive Command Nodes**: Scaled the default node dimensions significantly to exactly match the width of the top navigation toolbar (`600px`). The nodes now feel like substantial desktop panels rather than tiny badges.
+- **Proportional Glassmorphism**: Vertically scaled the typography and increased corner rounding to a plush `32px` to ensure the wider nodes retain their ultra-premium Apple-like Liquid Glass proportionality.
+- **Auto-Initialization**: Added a smart initialization hook. The canvas now automatically spawns a perfectly-centered `API Request` node the second the application loads, so you never look at a blank grid.
+- **Grid Collision Mathematics**: Rewrote the horizontal layout math to correctly offset grids by `640px` for the massive new nodes, preventing any possibility of UI overlap when rapidly creating multiple blocks.
+
+### 🐛 Bug Fixes
+
+- **1:1 Native Scale Rendering (FitView Camera Glitch)**: Fixed a frustrating optical illusion where increasing the physical CSS dimension of a node caused React Flow's `fitView` camera to dynamically zoom out, making the nodes appear visually identical in size. Explicitly stripped `fitView` and enforced `zoom: 1` locking to guarantee the massive 600px width natively renders at 1:1 monitor scale across all machines.
+
+---
+
 ## [v1.2.0] — 2026-03-30
 
 ### ✨ New Features

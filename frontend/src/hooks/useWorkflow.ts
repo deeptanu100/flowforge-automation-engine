@@ -1,5 +1,5 @@
 /** Workflow state management hook */
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import {
   useNodesState,
   useEdgesState,
@@ -64,7 +64,6 @@ export function useWorkflow() {
             ? { ...defaultComputeData }
             : { title: 'New Note', content: '' };
 
-      // Add onChange handler to each node's data
       const nodeData = {
         ...data,
         onDelete: () => deleteNode(id),
@@ -84,10 +83,10 @@ export function useWorkflow() {
       };
 
       setNodes((nds) => {
-        // Prevent layout overlap by calculating positions sequentially on a grid
+        // Updated layout matrix for 600px massive node width
         const position = {
-          x: (window.innerWidth / 2 || 600) - 220 + (nds.length % 3) * 480, // Center initial node + 480px horizontal spacing
-          y: 200 + Math.floor(nds.length / 3) * 300, // 300px vertical spacing to clear node height
+          x: (window.innerWidth / 2 || 800) - 300 + (nds.length % 3) * 640, // Base -300px aligns center, 640px horizontal grid
+          y: 200 + Math.floor(nds.length / 3) * 400, // 400px vertical drop to clear node height safely
         };
         const newNode: Node = { id, type, position, data: nodeData };
         return [...nds, newNode];
@@ -95,6 +94,15 @@ export function useWorkflow() {
     },
     [setNodes, deleteNode]
   );
+
+  const initRef = useRef(false);
+  useEffect(() => {
+    // Scaffold initial default workspace block to witness 600px node correctly from beginning
+    if (!initRef.current) {
+      initRef.current = true;
+      setTimeout(() => addNode('apiRequest'), 50);
+    }
+  }, [addNode]);
 
   const saveWorkflow = useCallback(async () => {
     setIsSaving(true);
