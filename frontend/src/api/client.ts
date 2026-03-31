@@ -2,11 +2,14 @@
 import axios from 'axios';
 import type {
   WorkflowData,
+  WorkflowListItem,
+  WorkflowVersionItem,
   Credential,
   TokenStats,
   TokenUsageEntry,
   ExecutionResult,
   DeviceAvailability,
+  ScheduleData,
 } from '../types/workflow';
 
 const api = axios.create({
@@ -15,10 +18,10 @@ const api = axios.create({
 });
 
 // ===== Workflows =====
-export const getWorkflows = () =>
+export const getWorkflows = (): Promise<WorkflowListItem[]> =>
   api.get('/workflows/').then((r) => r.data);
 
-export const getWorkflow = (id: string) =>
+export const getWorkflow = (id: string): Promise<WorkflowData & { version: number }> =>
   api.get(`/workflows/${id}`).then((r) => r.data);
 
 export const createWorkflow = (data: Partial<WorkflowData>) =>
@@ -29,6 +32,13 @@ export const updateWorkflow = (id: string, data: Partial<WorkflowData>) =>
 
 export const deleteWorkflow = (id: string) =>
   api.delete(`/workflows/${id}`).then((r) => r.data);
+
+// ===== Workflow Versions =====
+export const getWorkflowVersions = (id: string): Promise<WorkflowVersionItem[]> =>
+  api.get(`/workflows/${id}/versions`).then((r) => r.data);
+
+export const restoreWorkflowVersion = (id: string, versionNumber: number) =>
+  api.post(`/workflows/${id}/restore/${versionNumber}`).then((r) => r.data);
 
 // ===== Execution =====
 export const executeWorkflow = (id: string): Promise<ExecutionResult> =>
@@ -56,6 +66,22 @@ export const getTokenStats = (): Promise<TokenStats> =>
 
 export const getWorkflowTokenUsage = (workflowId: string): Promise<TokenUsageEntry[]> =>
   api.get(`/stats/tokens/workflow/${workflowId}`).then((r) => r.data);
+
+// ===== Schedules =====
+export const getSchedules = (): Promise<ScheduleData[]> =>
+  api.get('/schedules/').then((r) => r.data);
+
+export const getScheduleForWorkflow = (workflowId: string): Promise<ScheduleData> =>
+  api.get(`/schedules/${workflowId}`).then((r) => r.data);
+
+export const createSchedule = (workflowId: string, cronExpression: string) =>
+  api.post('/schedules/', { workflow_id: workflowId, cron_expression: cronExpression }).then((r) => r.data);
+
+export const updateSchedule = (scheduleId: string, data: { cron_expression?: string; is_active?: boolean }) =>
+  api.put(`/schedules/${scheduleId}`, data).then((r) => r.data);
+
+export const deleteSchedule = (scheduleId: string) =>
+  api.delete(`/schedules/${scheduleId}`).then((r) => r.data);
 
 // ===== System =====
 export const getDevices = (): Promise<DeviceAvailability> =>

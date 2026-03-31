@@ -32,6 +32,11 @@
   --color-node-compute: #00e5ff;
   --color-node-compute-bg: rgba(0, 229, 255, 0.15);
   
+  --color-node-conditional: #ffb703;
+  --color-node-conditional-bg: rgba(255, 183, 3, 0.15);
+  --color-node-loop: #10b981;
+  --color-node-loop-bg: rgba(16, 185, 129, 0.15);
+  
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
@@ -635,5 +640,186 @@ input.flow-node-input, select.flow-node-select {
 .node-delete-confirm-btn--active:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 24px rgba(255, 51, 102, 0.5);
+}
+
+/* ===== Conditional & Loop Nodes ===== */
+.flow-node--conditional .flow-node-header { border-bottom: 1px solid rgba(255, 183, 3, 0.2); }
+.flow-node--conditional .flow-node-header .node-icon { color: var(--color-node-conditional); filter: drop-shadow(0 0 8px var(--color-node-conditional-bg)); }
+.flow-node--loop .flow-node-header { border-bottom: 1px solid rgba(16, 185, 129, 0.2); }
+.flow-node--loop .flow-node-header .node-icon { color: var(--color-node-loop); filter: drop-shadow(0 0 8px var(--color-node-loop-bg)); }
+
+/* Dual Handles for Conditional */
+.conditional-handles-legend {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+}
+.conditional-handle-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+}
+.conditional-handle-label--true { color: var(--color-success); }
+.conditional-handle-label--false { color: var(--color-error); }
+.conditional-handle-dot { width: 6px; height: 6px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+.conditional-handle-dot--true { background: var(--color-success); }
+.conditional-handle-dot--false { background: var(--color-error); }
+
+.conditional-handle--true { border-color: var(--color-success) !important; }
+.conditional-handle--true:hover { background: var(--color-success) !important; box-shadow: 0 0 16px var(--color-success-bg), 0 0 0 4px rgba(0,255,170,0.2) !important; }
+.conditional-handle--false { border-color: var(--color-error) !important; }
+.conditional-handle--false:hover { background: var(--color-error) !important; box-shadow: 0 0 16px var(--color-error-bg), 0 0 0 4px rgba(255,51,102,0.2) !important; }
+
+/* Loop Info Badge */
+.loop-info-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--color-node-loop-bg);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 10px;
+  color: var(--color-node-loop);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+/* ===== Advanced Section Toggle ===== */
+.flow-node-advanced-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  padding: 8px 0;
+  margin-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  width: 100%;
+  transition: color 0.3s;
+}
+.flow-node-advanced-toggle:hover { color: var(--color-text-secondary); }
+.flow-node-advanced {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  margin-top: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  animation: fade-down-advanced 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes fade-down-advanced {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Toggle Switch ===== */
+.toggle-switch {
+  position: relative;
+  width: 32px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+  flex-shrink: 0;
+}
+.toggle-switch--on { background: var(--color-accent); }
+.toggle-switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+.toggle-switch--on .toggle-switch-knob { transform: translateX(14px); }
+
+/* ===== Workflow Browser ===== */
+.workflow-card {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+.workflow-card:hover { border-color: rgba(255, 255, 255, 0.15); }
+.workflow-card-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.workflow-card-main:hover { background: rgba(255, 255, 255, 0.03); }
+.workflow-card-main--active {
+  background: linear-gradient(90deg, rgba(0, 229, 255, 0.1), transparent);
+  border-left: 2px solid var(--color-info);
+}
+.version-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.workflow-versions {
+  background: rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: fold-down 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes fold-down {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.workflow-version-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+.workflow-version-item:hover { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.1); }
+
+/* ===== Schedule Panel ===== */
+.schedule-panel {
+  background: rgba(255, 42, 133, 0.02);
+  border: 1px solid rgba(255, 42, 133, 0.1);
+  border-radius: 16px;
+  padding: 16px;
 }
 

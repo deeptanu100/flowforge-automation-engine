@@ -10,3 +10,4 @@ torch
 onnxruntime
 transformers
 python-dotenv
+apscheduler==3.10.4

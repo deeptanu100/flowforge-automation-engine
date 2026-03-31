@@ -72,9 +72,14 @@ function FlowBuilder() {
     onEdgesChange,
     onConnect,
     addNode,
+    workflowId,
     workflowName,
     setWorkflowName,
+    workflowVersion,
     saveWorkflow,
+    loadWorkflow,
+    listWorkflows,
+    savedWorkflows,
     runWorkflow,
     isSaving,
     isExecuting,
@@ -132,6 +137,8 @@ function FlowBuilder() {
           nodeColor={(n: any) => {
             if (n.type === 'apiRequest') return '#7c5cfc';
             if (n.type === 'localCompute') return '#06b6d4';
+            if (n.type === 'conditional') return '#ffb703';
+            if (n.type === 'loop') return '#10b981';
             return '#f59e0b';
           }}
         />
@@ -146,6 +153,7 @@ function FlowBuilder() {
               onExecute={runWorkflow}
               isSaving={isSaving}
               isExecuting={isExecuting}
+              workflowVersion={workflowVersion}
             />
           </div>
         </Panel>
@@ -157,6 +165,10 @@ function FlowBuilder() {
         onClose={() => setIsSidePanelOpen(false)} 
         tokenUsage={nodeTokenUsage}
         executionResults={executionResults}
+        workflows={savedWorkflows}
+        currentWorkflowId={workflowId}
+        onLoadWorkflow={loadWorkflow}
+        onRefreshWorkflows={listWorkflows}
       />
 
       {/* Main UI Toggle Overlay (Fixed) */}

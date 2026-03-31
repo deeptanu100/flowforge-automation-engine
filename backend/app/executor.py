@@ -3,11 +3,13 @@
 import httpx
 import asyncio
 import time
-import platform
-import subprocess
+import json
+import re
+import operator
+import logging
 from datetime import datetime, timezone
 from typing import Any
-from app.dag_parser import DAGNode, parse_flow_to_dag
+from app.dag_parser import DAGNode, parse_flow_to_dag, build_edge_list, get_downstream_nodes
 from app.security import decrypt_credential
 from app.token_tracker import estimate_tokens
 from app.hardware_detector import get_hardware_status
@@ -16,8 +18,20 @@ from sqlalchemy import select
 from app.models import Credential
 import concurrent.futures
 
+logger = logging.getLogger(__name__)
+
 # Process pool for isolating heavy AI compute from the FastAPI event loop
 process_pool = concurrent.futures.ProcessPoolExecutor(max_workers=2)
+
+# Safe operators for condition evaluation
+SAFE_OPERATORS = {
+    "==": operator.eq,
+    "!=": operator.ne,
+    ">": operator.gt,
+    "<": operator.lt,
+    ">=": operator.ge,
+    "<=": operator.le,
+}
 
 
 class ExecutionResult:
@@ -58,6 +72,93 @@ def detect_available_devices() -> dict[str, bool]:
     }
 
 
+def resolve_json_path(data: Any, path: str) -> Any:
+    """Resolve a dot-separated path into nested data. e.g., 'body.items' on {'body': {'items': [1,2]}}"""
+    parts = path.strip().split(".")
+    current = data
+    for part in parts:
+        if isinstance(current, dict):
+            current = current.get(part)
+        elif isinstance(current, list):
+            try:
+                current = current[int(part)]
+            except (ValueError, IndexError):
+                return None
+        else:
+            return None
+    return current
+
+
+def evaluate_condition(condition: str, context: dict[str, Any]) -> bool:
+    """
+    Safely evaluate a condition expression against upstream context.
+    Supports: upstream_id.field == value, len(upstream_id.field) > 0, etc.
+    """
+    condition = condition.strip()
+
+    # Resolve {{ placeholder }} references first
+    def replace_ref(match):
+        ref = match.group(1).strip()
+        parts = ref.split(".", 1)
+        node_id = parts[0]
+        path = parts[1] if len(parts) > 1 else None
+
+        if node_id in context:
+            value = context[node_id]
+            if path:
+                value = resolve_json_path(value, path)
+            return json.dumps(value) if not isinstance(value, (int, float, bool)) else str(value)
+        return "null"
+
+    resolved = re.sub(r"\{\{\s*(.+?)\s*\}\}", replace_ref, condition)
+
+    # Try to evaluate with safe operators
+    for op_str, op_fn in SAFE_OPERATORS.items():
+        if op_str in resolved:
+            parts = resolved.split(op_str, 1)
+            if len(parts) == 2:
+                try:
+                    left = json.loads(parts[0].strip())
+                    right = json.loads(parts[1].strip())
+                    return op_fn(left, right)
+                except (json.JSONDecodeError, TypeError):
+                    pass
+
+    # Simple truthy/falsy check
+    try:
+        val = json.loads(resolved)
+        return bool(val)
+    except (json.JSONDecodeError, TypeError):
+        return bool(resolved and resolved.lower() not in ("false", "null", "0", "none", ""))
+
+
+async def execute_with_retry(execute_fn, node: DAGNode, context: dict[str, Any], db: AsyncSession = None) -> ExecutionResult:
+    """Wrap a node execution with configurable retry logic."""
+    retries = node.data.get("retryCount", 0)
+    delay_ms = node.data.get("retryDelay", 1000)
+    backoff = node.data.get("retryBackoff", "linear")
+
+    result = None
+    for attempt in range(retries + 1):
+        if db is not None:
+            result = await execute_fn(node, context, db)
+        else:
+            result = await execute_fn(node, context)
+
+        if result.status == "success":
+            return result
+
+        if attempt < retries:
+            if backoff == "exponential":
+                wait = (delay_ms / 1000.0) * (2 ** attempt)
+            else:
+                wait = (delay_ms / 1000.0) * (attempt + 1)
+            logger.info(f"Retrying node {node.id} (attempt {attempt + 2}/{retries + 1}) after {wait:.1f}s")
+            await asyncio.sleep(wait)
+
+    return result
+
+
 async def execute_api_request_node(node: DAGNode, context: dict[str, Any], db: AsyncSession) -> ExecutionResult:
     """Execute an API Request node — makes an async HTTP call."""
     data = node.data
@@ -65,6 +166,13 @@ async def execute_api_request_node(node: DAGNode, context: dict[str, Any], db: A
     method = data.get("method", "GET").upper()
     headers = data.get("headers", {})
     body = data.get("body", None)
+
+    # Parse headers if string
+    if isinstance(headers, str):
+        try:
+            headers = json.loads(headers) if headers.strip() else {}
+        except json.JSONDecodeError:
+            headers = {}
 
     # Resolve API key from credential ID via DB
     credential_id = data.get("credentialId", "")
@@ -231,6 +339,109 @@ async def execute_local_compute_node(node: DAGNode, context: dict[str, Any]) -> 
         return ExecutionResult(node.id, "error", error=f"{str(e)}\n{traceback.format_exc()}", duration_ms=elapsed)
 
 
+async def execute_conditional_node(node: DAGNode, context: dict[str, Any]) -> ExecutionResult:
+    """Execute a Conditional node — evaluates a condition and determines branch."""
+    data = node.data
+    condition = data.get("condition", "true")
+
+    start = time.perf_counter()
+    try:
+        branch_result = evaluate_condition(condition, context)
+        elapsed = (time.perf_counter() - start) * 1000
+
+        return ExecutionResult(
+            node_id=node.id,
+            status="success",
+            data={
+                "branch": "true" if branch_result else "false",
+                "condition": condition,
+                "evaluated": branch_result,
+            },
+            duration_ms=elapsed,
+        )
+    except Exception as e:
+        elapsed = (time.perf_counter() - start) * 1000
+        return ExecutionResult(node.id, "error", error=f"Condition evaluation failed: {str(e)}", duration_ms=elapsed)
+
+
+async def execute_loop_node(node: DAGNode, context: dict[str, Any], dag_nodes: list[DAGNode],
+                            edges, db: AsyncSession) -> ExecutionResult:
+    """Execute a Loop node — iterates over an array and runs downstream subgraph per item."""
+    data = node.data
+    array_path = data.get("arrayPath", "")
+    max_iterations = int(data.get("maxIterations", 100))
+
+    start = time.perf_counter()
+
+    # Resolve the input array from upstream context
+    input_array = None
+    for dep_id in node.dependencies:
+        if dep_id in context:
+            if array_path:
+                input_array = resolve_json_path(context[dep_id], array_path)
+            else:
+                input_array = context[dep_id]
+            break
+
+    if not isinstance(input_array, list):
+        elapsed = (time.perf_counter() - start) * 1000
+        return ExecutionResult(
+            node.id, "error",
+            error=f"Loop input is not an array. Got: {type(input_array).__name__}. "
+                  f"Check the Array Path expression.",
+            duration_ms=elapsed,
+        )
+
+    # Cap iterations
+    items = input_array[:max_iterations]
+    iteration_results = []
+
+    # Find downstream nodes of this loop node
+    downstream_ids = get_downstream_nodes(node.id, edges)
+    downstream_nodes = [n for n in dag_nodes if n.id in downstream_ids]
+
+    for idx, item in enumerate(items):
+        # Create iteration context with loop metadata
+        iter_context = {**context}
+        iter_context["loop"] = {
+            "current": item,
+            "index": idx,
+            "total": len(items),
+        }
+        iter_context[node.id] = {"current": item, "index": idx}
+
+        # Execute downstream subgraph for this iteration
+        for sub_node in downstream_nodes:
+            if sub_node.type == "apiRequest":
+                result = await execute_with_retry(execute_api_request_node, sub_node, iter_context, db)
+            elif sub_node.type == "localCompute":
+                result = await execute_with_retry(execute_local_compute_node, sub_node, iter_context)
+            else:
+                continue
+
+            if result.status == "success" and result.data:
+                iter_context[sub_node.id] = result.data
+
+            iteration_results.append({
+                "iteration": idx,
+                "node_id": sub_node.id,
+                **result.to_dict(),
+            })
+
+    elapsed = (time.perf_counter() - start) * 1000
+    return ExecutionResult(
+        node_id=node.id,
+        status="success",
+        data={
+            "iterations_completed": len(items),
+            "total_items": len(input_array),
+            "capped": len(input_array) > max_iterations,
+            "results": iteration_results,
+        },
+        duration_ms=elapsed,
+    )
+
+
 async def run_workflow(workflow_json_data: dict, db: AsyncSession) -> dict:
     """
     Execute a complete workflow from React Flow JSON.
@@ -238,15 +449,44 @@ async def run_workflow(workflow_json_data: dict, db: AsyncSession) -> dict:
     Returns a dict with overall status and per-node results.
     """
     dag_nodes = parse_flow_to_dag(workflow_json_data)
+    edges = build_edge_list(workflow_json_data)
     context: dict[str, Any] = {}  # Stores outputs from completed nodes
     results: list[dict] = []
     overall_status = "success"
+    skipped_nodes: set[str] = set()  # Nodes on non-taken conditional branches
 
     for node in dag_nodes:
+        # Skip nodes on non-taken branches
+        if node.id in skipped_nodes:
+            results.append(ExecutionResult(node.id, "skipped", data={"reason": "Branch not taken"}).to_dict())
+            continue
+
+        # Skip tutorial/note nodes
+        if node.type == "tutorialNode":
+            results.append(ExecutionResult(node.id, "skipped", data={"reason": "Tutorial node"}).to_dict())
+            continue
+
         if node.type == "apiRequest":
-            result = await execute_api_request_node(node, context, db)
+            result = await execute_with_retry(execute_api_request_node, node, context, db)
         elif node.type == "localCompute":
-            result = await execute_local_compute_node(node, context)
+            result = await execute_with_retry(execute_local_compute_node, node, context)
+        elif node.type == "conditional":
+            result = await execute_conditional_node(node, context)
+
+            # Determine which branch to skip
+            if result.status == "success" and result.data:
+                taken_branch = result.data.get("branch", "true")
+                skip_handle = "false-output" if taken_branch == "true" else "true-output"
+                # Mark all downstream nodes on the non-taken branch as skipped
+                nodes_to_skip = get_downstream_nodes(node.id, edges, source_handle=skip_handle)
+                skipped_nodes.update(nodes_to_skip)
+
+        elif node.type == "loop":
+            result = await execute_loop_node(node, context, dag_nodes, edges, db)
+
+            # Mark loop's downstream nodes as already handled (don't re-execute them)
+            downstream_ids = get_downstream_nodes(node.id, edges)
+            skipped_nodes.update(downstream_ids)
         else:
             result = ExecutionResult(node.id, "skipped", error=f"Unknown node type: {node.type}")
 
@@ -257,8 +497,13 @@ async def run_workflow(workflow_json_data: dict, db: AsyncSession) -> dict:
         results.append(result.to_dict())
 
         if result.status == "error":
-            overall_status = "failed"
-            break  # Stop execution on first error
+            # Check continueOnError flag
+            if node.data.get("continueOnError", False):
+                logger.warning(f"Node {node.id} failed but continueOnError is set — continuing")
+                overall_status = "partial"
+            else:
+                overall_status = "failed"
+                break  # Stop execution on first error
 
     return {
         "status": overall_status,

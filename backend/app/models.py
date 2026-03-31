@@ -1,6 +1,6 @@
 """SQLAlchemy ORM models for FlowForge."""
 
-from sqlalchemy import Column, String, Text, DateTime, Integer, Float, ForeignKey, JSON
+from sqlalchemy import Column, String, Text, DateTime, Integer, Float, Boolean, ForeignKey, JSON
 from sqlalchemy.sql import func
 from app.database import Base
 import uuid
@@ -17,8 +17,20 @@ class Workflow(Base):
     name = Column(String(255), nullable=False, default="Untitled Workflow")
     description = Column(Text, nullable=True)
     workflow_json_data = Column(JSON, nullable=False, default=dict)  # React Flow JSON
+    version = Column(Integer, nullable=False, default=1)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
+class WorkflowVersion(Base):
+    __tablename__ = "workflow_versions"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    workflow_id = Column(String, ForeignKey("workflows.id"), nullable=False)
+    version_number = Column(Integer, nullable=False)
+    workflow_json_data = Column(JSON, nullable=False)
+    name = Column(String(255), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
 class Credential(Base):
@@ -57,3 +69,15 @@ class TokenUsage(Base):
     request_size_bytes = Column(Integer, default=0)
     response_size_bytes = Column(Integer, default=0)
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class ScheduledWorkflow(Base):
+    __tablename__ = "scheduled_workflows"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    workflow_id = Column(String, ForeignKey("workflows.id"), nullable=False)
+    cron_expression = Column(String(100), nullable=False)
+    is_active = Column(Boolean, nullable=False, default=True)
+    last_run_at = Column(DateTime(timezone=True), nullable=True)
+    next_run_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

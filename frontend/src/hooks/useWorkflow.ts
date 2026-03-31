@@ -8,8 +8,8 @@ import {
   type Edge,
   type OnConnect,
 } from '@xyflow/react';
-import type { TokenUsageEntry } from '../types/workflow';
-import { createWorkflow, updateWorkflow, executeWorkflow } from '../api/client';
+import type { TokenUsageEntry, WorkflowListItem } from '../types/workflow';
+import { createWorkflow, updateWorkflow, executeWorkflow, getWorkflows, getWorkflow } from '../api/client';
 
 const defaultApiData = {
   label: 'API Request',
@@ -19,6 +19,10 @@ const defaultApiData = {
   body: '',
   apiKey: '',
   status: 'idle',
+  retryCount: 0,
+  retryDelay: 1000,
+  retryBackoff: 'linear',
+  continueOnError: false,
 };
 
 const defaultComputeData = {
@@ -27,19 +31,46 @@ const defaultComputeData = {
   script: '',
   params: {},
   status: 'idle',
+  retryCount: 0,
+  retryDelay: 1000,
+  retryBackoff: 'linear',
+  continueOnError: false,
 };
+
+const defaultConditionalData = {
+  label: 'Conditional',
+  condition: '',
+  status: 'idle',
+};
+
+const defaultLoopData = {
+  label: 'Loop Iterator',
+  arrayPath: '',
+  maxIterations: 100,
+  status: 'idle',
+};
+
+type NodeType = 'apiRequest' | 'localCompute' | 'tutorialNode' | 'conditional' | 'loop';
 
 export function useWorkflow() {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [workflowId, setWorkflowId] = useState<string | null>(null);
   const [workflowName, setWorkflowName] = useState('Untitled Workflow');
+  const [workflowVersion, setWorkflowVersion] = useState(1);
   const [isSaving, setIsSaving] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false);
-  const [execStatus, setExecStatus] = useState<'idle' | 'running' | 'success' | 'failed' | null>(null);
+  const [execStatus, setExecStatus] = useState<'idle' | 'running' | 'success' | 'failed' | 'partial' | null>(null);
   const [execMessage, setExecMessage] = useState('');
   const [nodeTokenUsage, setNodeTokenUsage] = useState<TokenUsageEntry[]>([]);
   const [executionResults, setExecutionResults] = useState<any[]>([]);
+  const [savedWorkflows, setSavedWorkflows] = useState<WorkflowListItem[]>([]);
+  const workflowIdRef = useRef<string | null>(null);
+
+  // Keep ref in sync
+  useEffect(() => {
+    workflowIdRef.current = workflowId;
+  }, [workflowId]);
 
   const onConnect: OnConnect = useCallback(
     (params) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)),
@@ -54,45 +85,68 @@ export function useWorkflow() {
     [setNodes, setEdges]
   );
 
+  const createNodeCallbacks = useCallback(
+    (id: string) => ({
+      onDelete: () => deleteNode(id),
+      onChange: (field: string, value: string) => {
+        setNodes((nds) =>
+          nds.map((n) => {
+            if (n.id === id) {
+              if (field === 'params') {
+                try {
+                  return { ...n, data: { ...n.data, params: JSON.parse(value) } };
+                } catch {
+                  return { ...n, data: { ...n.data, params: {} } };
+                }
+              }
+              // Handle boolean conversion for continueOnError
+              if (field === 'continueOnError') {
+                return { ...n, data: { ...n.data, [field]: value === 'true' } };
+              }
+              // Handle numeric fields
+              if (['retryCount', 'retryDelay', 'maxIterations'].includes(field)) {
+                return { ...n, data: { ...n.data, [field]: parseInt(value) || 0 } };
+              }
+              return { ...n, data: { ...n.data, [field]: value } };
+            }
+            return n;
+          })
+        );
+      },
+    }),
+    [setNodes, deleteNode]
+  );
+
   const addNode = useCallback(
-    (type: 'apiRequest' | 'localCompute' | 'tutorialNode') => {
+    (type: NodeType) => {
       const id = `${type}-${Date.now()}`;
 
-      const data = type === 'apiRequest' 
-          ? { ...defaultApiData } 
-          : type === 'localCompute' 
-            ? { ...defaultComputeData }
-            : { title: 'New Note', content: '' };
+      const data = type === 'apiRequest'
+        ? { ...defaultApiData }
+        : type === 'localCompute'
+          ? { ...defaultComputeData }
+          : type === 'conditional'
+            ? { ...defaultConditionalData }
+            : type === 'loop'
+              ? { ...defaultLoopData }
+              : { title: 'New Note', content: '' };
 
       const nodeData = {
         ...data,
-        onDelete: () => deleteNode(id),
-        onChange: (field: string, value: string) => {
-          setNodes((nds) =>
-            nds.map((n) => {
-              if (n.id === id) {
-                if (field === 'params') {
-                  return { ...n, data: { ...n.data, params: JSON.parse(value) } };
-                }
-                return { ...n, data: { ...n.data, [field]: value } };
-              }
-              return n;
-            })
-          );
-        },
+        ...createNodeCallbacks(id),
       };
 
       setNodes((nds) => {
         // Updated layout matrix for 600px massive node width
         const position = {
-          x: (window.innerWidth / 2 || 800) - 300 + (nds.length % 3) * 640, // Base -300px aligns center, 640px horizontal grid
-          y: 200 + Math.floor(nds.length / 3) * 400, // 400px vertical drop to clear node height safely
+          x: (window.innerWidth / 2 || 800) - 300 + (nds.length % 3) * 640,
+          y: 200 + Math.floor(nds.length / 3) * 400,
         };
         const newNode: Node = { id, type, position, data: nodeData };
         return [...nds, newNode];
       });
     },
-    [setNodes, deleteNode]
+    [setNodes, createNodeCallbacks]
   );
 
   const initRef = useRef(false);
@@ -110,31 +164,79 @@ export function useWorkflow() {
       const flowData = {
         nodes: nodes.map((n) => ({
           id: n.id,
-          type: n.type as 'apiRequest' | 'localCompute' | 'tutorialNode',
+          type: n.type as NodeType,
           position: n.position,
-          data: { ...n.data, onChange: undefined } as any, // Strip function before serializing
+          data: { ...n.data, onChange: undefined, onDelete: undefined } as any,
         })) as any,
         edges: edges as any,
       };
 
-      if (workflowId) {
-        await updateWorkflow(workflowId, { name: workflowName, workflow_json_data: flowData });
+      if (workflowIdRef.current) {
+        const result = await updateWorkflow(workflowIdRef.current, { name: workflowName, workflow_json_data: flowData });
+        setWorkflowVersion(result.version || workflowVersion + 1);
       } else {
         const result = await createWorkflow({ name: workflowName, workflow_json_data: flowData });
         setWorkflowId(result.id);
+        workflowIdRef.current = result.id;
+        setWorkflowVersion(result.version || 1);
       }
     } catch (err) {
       console.error('Save failed:', err);
     }
     setIsSaving(false);
-  }, [nodes, edges, workflowId, workflowName]);
+  }, [nodes, edges, workflowName, workflowVersion]);
+
+  const loadWorkflow = useCallback(async (id: string) => {
+    try {
+      const wf = await getWorkflow(id);
+      setWorkflowId(wf.id!);
+      workflowIdRef.current = wf.id!;
+      setWorkflowName(wf.name);
+      setWorkflowVersion(wf.version || 1);
+
+      const flowData = wf.workflow_json_data;
+      if (flowData && flowData.nodes) {
+        const hydratedNodes: Node[] = flowData.nodes.map((n: any) => ({
+          id: n.id,
+          type: n.type,
+          position: n.position,
+          data: {
+            ...n.data,
+            ...createNodeCallbacks(n.id),
+          },
+        }));
+        setNodes(hydratedNodes);
+        setEdges(flowData.edges || []);
+      }
+
+      // Reset execution state
+      setExecStatus(null);
+      setExecMessage('');
+      setExecutionResults([]);
+      setNodeTokenUsage([]);
+    } catch (err) {
+      console.error('Load failed:', err);
+    }
+  }, [setNodes, setEdges, createNodeCallbacks]);
+
+  const listWorkflows = useCallback(async () => {
+    try {
+      const list = await getWorkflows();
+      setSavedWorkflows(list);
+      return list;
+    } catch (err) {
+      console.error('Failed to list workflows:', err);
+      return [];
+    }
+  }, []);
 
   const runWorkflow = useCallback(async () => {
-    if (!workflowId) {
-      // Auto-save first
+    // Auto-save first if needed
+    if (!workflowIdRef.current) {
       await saveWorkflow();
     }
-    if (!workflowId) return;
+    // Re-check after save — use ref for immediate value
+    if (!workflowIdRef.current) return;
 
     setIsExecuting(true);
     setExecStatus('running');
@@ -144,7 +246,7 @@ export function useWorkflow() {
     setNodes((nds) => nds.map((n) => ({ ...n, data: { ...n.data, status: 'running' } })));
 
     try {
-      const result = await executeWorkflow(workflowId);
+      const result = await executeWorkflow(workflowIdRef.current);
 
       // Update node statuses based on results
       setNodes((nds) =>
@@ -173,11 +275,18 @@ export function useWorkflow() {
         }));
       setNodeTokenUsage(usage);
 
-      setExecStatus(result.status === 'success' ? 'success' : 'failed');
+      const statusMap: Record<string, 'success' | 'failed' | 'partial'> = {
+        success: 'success',
+        failed: 'failed',
+        partial: 'partial',
+      };
+      setExecStatus(statusMap[result.status] || 'failed');
       setExecMessage(
         result.status === 'success'
           ? `Workflow completed — ${result.nodes_executed}/${result.nodes_total} nodes executed`
-          : `Workflow failed at node ${result.nodes_executed}/${result.nodes_total}`
+          : result.status === 'partial'
+            ? `Workflow partially completed — some nodes continued on error`
+            : `Workflow failed at node ${result.nodes_executed}/${result.nodes_total}`
       );
     } catch (err: any) {
       setExecStatus('failed');
@@ -185,7 +294,7 @@ export function useWorkflow() {
       setNodes((nds) => nds.map((n) => ({ ...n, data: { ...n.data, status: 'error' } })));
     }
     setIsExecuting(false);
-  }, [workflowId, nodes, edges, saveWorkflow, setNodes]);
+  }, [nodes, edges, saveWorkflow, setNodes]);
 
   const dismissExecStatus = useCallback(() => {
     setExecStatus(null);
@@ -202,7 +311,11 @@ export function useWorkflow() {
     workflowId,
     workflowName,
     setWorkflowName,
+    workflowVersion,
     saveWorkflow,
+    loadWorkflow,
+    listWorkflows,
+    savedWorkflows,
     runWorkflow,
     isSaving,
     isExecuting,

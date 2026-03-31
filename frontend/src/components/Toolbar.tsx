@@ -1,14 +1,15 @@
 import React from 'react';
-import { Plus, Save, Play, Loader2 } from 'lucide-react';
+import { Plus, Save, Play, Loader2, GitBranch, Repeat } from 'lucide-react';
 
 interface ToolbarProps {
   workflowName: string;
   setWorkflowName: (name: string) => void;
-  onAddNode: (type: 'apiRequest' | 'localCompute' | 'tutorialNode') => void;
+  onAddNode: (type: 'apiRequest' | 'localCompute' | 'tutorialNode' | 'conditional' | 'loop') => void;
   onSave: () => void;
   onExecute: () => void;
   isSaving: boolean;
   isExecuting: boolean;
+  workflowVersion?: number;
 }
 
 export default function Toolbar({
@@ -19,6 +20,7 @@ export default function Toolbar({
   onExecute,
   isSaving,
   isExecuting,
+  workflowVersion,
 }: ToolbarProps) {
   return (
     <div className="toolbar group">
@@ -29,6 +31,9 @@ export default function Toolbar({
         onChange={(e) => setWorkflowName(e.target.value)}
         placeholder="Untitled Workflow"
       />
+      {workflowVersion && workflowVersion > 0 && (
+        <span className="version-badge">v{workflowVersion}</span>
+      )}
       
       <div className="toolbar-divider" />
 
@@ -37,13 +42,21 @@ export default function Toolbar({
           <Plus className="w-4 h-4" />
           <span>Add Node</span>
         </button>
-        <div className="absolute top-full left-0 mt-2 w-48 bg-surface-1 border border-border rounded-xl shadow-2xl opacity-0 invisible group-hover/dropdown:opacity-100 group-hover/dropdown:visible transition-all flex flex-col p-1 backdrop-blur-xl z-20 overflow-hidden transform origin-top scale-95 group-hover/dropdown:scale-100">
+        <div className="absolute top-full left-0 mt-2 w-52 bg-surface-1 border border-border rounded-xl shadow-2xl opacity-0 invisible group-hover/dropdown:opacity-100 group-hover/dropdown:visible transition-all flex flex-col p-1 backdrop-blur-xl z-20 overflow-hidden transform origin-top scale-95 group-hover/dropdown:scale-100">
           <button className="flex items-center gap-2 p-2 px-3 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors text-left" onClick={() => onAddNode('apiRequest')}>
             <span className="w-2 h-2 rounded-full bg-node-api shadow-[0_0_8px_var(--color-node-api)]"></span> API Request
           </button>
           <button className="flex items-center gap-2 p-2 px-3 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors text-left" onClick={() => onAddNode('localCompute')}>
             <span className="w-2 h-2 rounded-full bg-node-compute shadow-[0_0_8px_var(--color-node-compute)]"></span> Local Compute
           </button>
+          <div className="h-px bg-white/5 mx-2 my-1" />
+          <button className="flex items-center gap-2 p-2 px-3 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors text-left" onClick={() => onAddNode('conditional')}>
+            <span className="w-2 h-2 rounded-full bg-[var(--color-node-conditional)] shadow-[0_0_8px_var(--color-node-conditional-bg)]"></span> Conditional
+          </button>
+          <button className="flex items-center gap-2 p-2 px-3 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors text-left" onClick={() => onAddNode('loop')}>
+            <span className="w-2 h-2 rounded-full bg-[var(--color-node-loop)] shadow-[0_0_8px_var(--color-node-loop-bg)]"></span> Loop Iterator
+          </button>
+          <div className="h-px bg-white/5 mx-2 my-1" />
           <button className="flex items-center gap-2 p-2 px-3 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-2 rounded-lg transition-colors text-left" onClick={() => onAddNode('tutorialNode')}>
             <span className="w-2 h-2 rounded-full bg-warning shadow-[0_0_8px_var(--color-warning)]"></span> Tutorial Note
           </button>

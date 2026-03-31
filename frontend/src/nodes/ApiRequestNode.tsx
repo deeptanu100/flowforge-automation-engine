@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Handle, Position, type NodeProps, type Node } from '@xyflow/react';
-import { Globe, Play, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { Globe, CheckCircle, XCircle, Loader2, ChevronDown } from 'lucide-react';
 import type { ApiRequestNodeData, Credential } from '../types/workflow';
 import { getCredentials } from '../api/client';
 import NodeDeleteButton from './NodeDeleteButton';
@@ -9,6 +9,7 @@ export type ApiRequestNodeType = Node<ApiRequestNodeData & { onChange: (field: s
 
 export default function ApiRequestNode({ data, isConnectable }: NodeProps<ApiRequestNodeType>) {
   const [credentials, setCredentials] = useState<Credential[]>([]);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   useEffect(() => {
     getCredentials().then(setCredentials).catch(console.error);
@@ -99,6 +100,64 @@ export default function ApiRequestNode({ data, isConnectable }: NodeProps<ApiReq
             ))}
           </select>
         </div>
+
+        {/* Advanced: Retry & Error Handling */}
+        <button
+          className="flow-node-advanced-toggle"
+          onClick={() => setShowAdvanced(!showAdvanced)}
+        >
+          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
+          <span>Advanced</span>
+        </button>
+
+        {showAdvanced && (
+          <div className="flow-node-advanced">
+            <div className="flow-node-field">
+              <label className="flow-node-label">Retry Count</label>
+              <input
+                type="number"
+                className="flow-node-input w-24"
+                value={data.retryCount || 0}
+                onChange={(e) => data.onChange('retryCount', e.target.value)}
+                min={0}
+                max={5}
+              />
+            </div>
+            <div className="flow-node-field mt-1">
+              <label className="flow-node-label">Retry Delay (ms)</label>
+              <input
+                type="number"
+                className="flow-node-input w-32"
+                value={data.retryDelay || 1000}
+                onChange={(e) => data.onChange('retryDelay', e.target.value)}
+                min={100}
+                step={100}
+              />
+            </div>
+            <div className="flow-node-field mt-1">
+              <label className="flow-node-label">Backoff Strategy</label>
+              <select
+                className="flow-node-select"
+                value={data.retryBackoff || 'linear'}
+                onChange={(e) => data.onChange('retryBackoff', e.target.value)}
+              >
+                <option value="linear">Linear</option>
+                <option value="exponential">Exponential</option>
+              </select>
+            </div>
+            <div className="flow-node-field mt-1">
+              <label className="flow-node-label flex items-center justify-between">
+                <span>Continue on Error</span>
+                <button
+                  className={`toggle-switch ${data.continueOnError ? 'toggle-switch--on' : ''}`}
+                  onClick={() => data.onChange('continueOnError', data.continueOnError ? '' : 'true')}
+                >
+                  <span className="toggle-switch-knob" />
+                </button>
+              </label>
+            </div>
+          </div>
+        )}
       </div>
 
       <Handle type="source" position={Position.Bottom} isConnectable={isConnectable} />
