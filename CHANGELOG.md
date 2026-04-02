@@ -4,6 +4,18 @@ All notable changes to FlowForge Automation Engine will be documented in this fi
 
 ---
 
+## [v1.3.0] — 2026-04-02
+
+### ✨ New Features (Tier 1 Implementation)
+
+- **Workflow Persistence**: Implemented SQLite-backed version history with the new `WorkflowBrowser` sidebar panel, allowing users to save, browse, and restore workflow snapshots.
+- **Flow Control Nodes**: Introduced **Conditional** (branching) and **Loop** (iterator) graph nodes fully functional in the executor engine to enable logic execution and iteration.
+- **Error Resilience**: Added an "Advanced" config panel to API and Compute nodes to configure exponential or linear retries, tracking, and "Continue-on-Error" behavior.
+- **Cron Scheduling**: Dedicated `APScheduler` loop running on the backend seamlessly connected to a new schedule user interface in the Workspace dashboard.
+- **Liquid Glass Theme Enhancements**: Enhanced the premium aesthetics with glassmorphism tabs, pulsating amber/emerald status dots, and a styled schedule widget.
+
+---
+
 ## [v1.2.1] — 2026-03-30
 
 ### ✨ UI/UX Enhancements
