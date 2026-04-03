@@ -4,6 +4,7 @@ import {
   useNodesState,
   useEdgesState,
   addEdge,
+  useReactFlow,
   type Node,
   type Edge,
   type OnConnect,
@@ -53,6 +54,7 @@ const defaultLoopData = {
 type NodeType = 'apiRequest' | 'localCompute' | 'tutorialNode' | 'conditional' | 'loop';
 
 export function useWorkflow() {
+  const { updateNodeData } = useReactFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [workflowId, setWorkflowId] = useState<string | null>(null);
@@ -89,32 +91,29 @@ export function useWorkflow() {
     (id: string) => ({
       onDelete: () => deleteNode(id),
       onChange: (field: string, value: string) => {
-        setNodes((nds) =>
-          nds.map((n) => {
-            if (n.id === id) {
-              if (field === 'params') {
-                try {
-                  return { ...n, data: { ...n.data, params: JSON.parse(value) } };
-                } catch {
-                  return { ...n, data: { ...n.data, params: {} } };
-                }
-              }
-              // Handle boolean conversion for continueOnError
-              if (field === 'continueOnError') {
-                return { ...n, data: { ...n.data, [field]: value === 'true' } };
-              }
-              // Handle numeric fields
-              if (['retryCount', 'retryDelay', 'maxIterations'].includes(field)) {
-                return { ...n, data: { ...n.data, [field]: parseInt(value) || 0 } };
-              }
-              return { ...n, data: { ...n.data, [field]: value } };
-            }
-            return n;
-          })
-        );
+        if (field === 'params') {
+          try {
+            updateNodeData(id, { params: JSON.parse(value) });
+          } catch {
+            updateNodeData(id, { params: {} });
+          }
+          return;
+        }
+        // Handle boolean conversion for continueOnError
+        if (field === 'continueOnError') {
+          updateNodeData(id, { [field]: value === 'true' });
+          return;
+        }
+        // Handle numeric fields
+        if (['retryCount', 'retryDelay', 'maxIterations'].includes(field)) {
+          updateNodeData(id, { [field]: parseInt(value) || 0 });
+          return;
+        }
+
+        updateNodeData(id, { [field]: value });
       },
     }),
-    [setNodes, deleteNode]
+    [deleteNode, updateNodeData]
   );
 
   const addNode = useCallback(

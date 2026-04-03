@@ -22,6 +22,17 @@ async def migrate_db():
     migrations = [
         ("workflows", "version", "INTEGER DEFAULT 1"),
     ]
+    
+    indexes = [
+        "CREATE INDEX IF NOT EXISTS ix_workflow_versions_workflow_id ON workflow_versions (workflow_id)",
+        "CREATE INDEX IF NOT EXISTS ix_execution_logs_workflow_id ON execution_logs (workflow_id)",
+        "CREATE INDEX IF NOT EXISTS ix_execution_logs_status ON execution_logs (status)",
+        "CREATE INDEX IF NOT EXISTS ix_token_usage_workflow_id ON token_usage (workflow_id)",
+        "CREATE INDEX IF NOT EXISTS ix_token_usage_execution_id ON token_usage (execution_id)",
+        "CREATE INDEX IF NOT EXISTS ix_scheduled_workflows_workflow_id ON scheduled_workflows (workflow_id)",
+        "CREATE INDEX IF NOT EXISTS ix_scheduled_workflows_is_active ON scheduled_workflows (is_active)",
+        "CREATE INDEX IF NOT EXISTS ix_scheduled_workflows_next_run_at ON scheduled_workflows (next_run_at)"
+    ]
 
     async with engine.begin() as conn:
         for table, column, col_type in migrations:
@@ -30,6 +41,12 @@ async def migrate_db():
                 logger.info(f"Migration: Added column {column} to {table}")
             except Exception:
                 # Column already exists — safe to ignore
+                pass
+                
+        for idx in indexes:
+            try:
+                await conn.execute(text(idx))
+            except Exception:
                 pass
 
 

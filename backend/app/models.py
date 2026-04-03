@@ -26,7 +26,7 @@ class WorkflowVersion(Base):
     __tablename__ = "workflow_versions"
 
     id = Column(String, primary_key=True, default=generate_uuid)
-    workflow_id = Column(String, ForeignKey("workflows.id"), nullable=False)
+    workflow_id = Column(String, ForeignKey("workflows.id"), nullable=False, index=True)
     version_number = Column(Integer, nullable=False)
     workflow_json_data = Column(JSON, nullable=False)
     name = Column(String(255), nullable=True)
@@ -47,8 +47,8 @@ class ExecutionLog(Base):
     __tablename__ = "execution_logs"
 
     id = Column(String, primary_key=True, default=generate_uuid)
-    workflow_id = Column(String, ForeignKey("workflows.id"), nullable=False)
-    status = Column(String(50), nullable=False, default="pending")  # pending, running, success, failed
+    workflow_id = Column(String, ForeignKey("workflows.id"), nullable=False, index=True)
+    status = Column(String(50), nullable=False, default="pending", index=True)  # pending, running, success, failed
     started_at = Column(DateTime(timezone=True), server_default=func.now())
     completed_at = Column(DateTime(timezone=True), nullable=True)
     result = Column(JSON, nullable=True)  # Per-node execution results
@@ -60,8 +60,8 @@ class TokenUsage(Base):
 
     id = Column(String, primary_key=True, default=generate_uuid)
     credential_id = Column(String, ForeignKey("credentials.id"), nullable=True)
-    workflow_id = Column(String, ForeignKey("workflows.id"), nullable=False)
-    execution_id = Column(String, ForeignKey("execution_logs.id"), nullable=False)
+    workflow_id = Column(String, ForeignKey("workflows.id"), nullable=False, index=True)
+    execution_id = Column(String, ForeignKey("execution_logs.id"), nullable=False, index=True)
     node_id = Column(String, nullable=False)  # React Flow node ID
     node_label = Column(String(255), nullable=True)
     tokens_used = Column(Integer, default=0)
@@ -75,9 +75,9 @@ class ScheduledWorkflow(Base):
     __tablename__ = "scheduled_workflows"
 
     id = Column(String, primary_key=True, default=generate_uuid)
-    workflow_id = Column(String, ForeignKey("workflows.id"), nullable=False)
+    workflow_id = Column(String, ForeignKey("workflows.id"), nullable=False, index=True)
     cron_expression = Column(String(100), nullable=False)
-    is_active = Column(Boolean, nullable=False, default=True)
+    is_active = Column(Boolean, nullable=False, default=True, index=True)
     last_run_at = Column(DateTime(timezone=True), nullable=True)
-    next_run_at = Column(DateTime(timezone=True), nullable=True)
+    next_run_at = Column(DateTime(timezone=True), nullable=True, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
