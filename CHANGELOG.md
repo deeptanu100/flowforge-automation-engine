@@ -4,6 +4,15 @@ All notable changes to FlowForge Automation Engine will be documented in this fi
 
 ---
 
+## [v1.3.1] — 2026-04-03
+
+### ✨ Performance & Optimizations
+
+- **Frontend Scalability**: Refactored global canvas state updates by implementing native `@xyflow/react` atomic `updateNodeData` actions. This dramatically reduces React re-renders and eliminates multi-second input lag when editing node parameters in massive dependency graphs.
+- **Backend Optimizations**: Added direct SQLite `index=True` flags for critical foreign keys (`workflow_id`, `execution_id`) and status parameters in the database models, drastically speeding up queries for long-term workflow storage and cron metric execution.
+
+---
+
 ## [v1.3.0] — 2026-04-02
 
 ### ✨ New Features (Tier 1 Implementation)
